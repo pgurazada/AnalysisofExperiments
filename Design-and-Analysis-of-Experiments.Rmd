@@ -10,10 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ```{r}
 library(tidyverse) # required for general data handling
 library(psych) # required for behavioral statistical tests
@@ -28,18 +24,18 @@ library(dae) # required for general ANOVA related tasks in experiments
 An engineer has prepared two formulations of cement and tested them for a difference in bond strength. The intention of this study is to understand if the change in the formulation of cement made any significant change in the bond strength of the cement. Of course, to begin with, previous research showed that bond strength of cement is influenced by the formulation in addition to other factors. The data collected is reproduced below:
 
 ```{r}
-bnd_strength <- c(16.85, 16.4, 17.21, 16.35, 16.52, 17.04, 16.96, 17.15, 16.59, 16.57, 
+bondStrength <- c(16.85, 16.4, 17.21, 16.35, 16.52, 17.04, 16.96, 17.15, 16.59, 16.57, 
                 16.62, 16.75, 17.37, 17.12, 16.98, 16.87, 17.34, 17.02, 17.08, 17.27)
 trmnt <- c(rep(1, 10), rep(2, 10))
 
-cement_data <- data_frame(bnd_strength, trmnt)
-summary(cement_data)
+cementData <- data_frame(bondStrength, trmnt)
+glimpse(cementData)
 ```
 To see if the engineer cracked a new formulation, we need to do a test for the difference of means between the mean bond strengths of the materials. Implicitly assuming that the observations have been drawn from a normal random variable with the group mean.
 
 ```{r}
-t.test(bnd_strength[1:10], 
-       bnd_strength[11:20], 
+t.test(bondStrength[1:10], 
+       bondStrength[11:20], 
        var.equal = TRUE)
 ```
 
@@ -53,7 +49,7 @@ In the next example, there is a hardness testing machine with a choice of two ti
 specimens <- 1:10
 tip1 <- c(7,3,3,4,8,3,2,9,5,4)
 tip2 <- c(6,3,5,3,8,2,4,9,4,5)
-hard_data <- data_frame(specimens, tip1, tip2)
+hardData <- data_frame(specimens, tip1, tip2)
 ```
 
 We can now run a paired t-test on this data.
@@ -100,14 +96,14 @@ Since the null hypothesis is that the population variances ar eequal and the p v
 In this experiment, it is suspected that the time allowed for a phone mold to cool down after removal from the injection molding process has an impact on the occurrence of a cosmetic defect on the phone. The data was collected for two treatments 10 seconds and 20 seconds, and is as follows:
 
 ```{r}
-ten_sec <- c(1, 3, 2, 6, 1, 5, 3, 3, 5, 2, 1, 1, 5, 6, 2, 8, 3, 2, 5, 3)
-twenty_sec <- c(7, 6, 8, 9, 5, 5, 9, 7, 5, 4, 8, 6, 6, 8, 4, 5, 6, 8, 7, 7)
+tenSec <- c(1, 3, 2, 6, 1, 5, 3, 3, 5, 2, 1, 1, 5, 6, 2, 8, 3, 2, 5, 3)
+twentySec <- c(7, 6, 8, 9, 5, 5, 9, 7, 5, 4, 8, 6, 6, 8, 4, 5, 6, 8, 7, 7)
 ```
 
 We are interested in checking if allowing the mold to cool for longer results in a better cosmetic quality. This leads us to a one sided two sample t test.
 
 ```{r}
-t.test(ten_sec, twenty_sec, 
+t.test(tenSec, twentySec, 
        alternative = "greater",
        var.equal = FALSE)
 ```
@@ -121,21 +117,21 @@ In this experiment, we have four levels of RF power and we trying to see if thes
 The data collected from this experiment is as follows:
 
 ```{r}
-er_data <- c(575, 542, 530, 539, 570, 565, 593, 590, 579, 610, 600, 651, 610, 
-             637, 629, 725, 700, 715, 685, 710)
-rf_power <- as.factor(c(rep(160, 5), rep(180, 5), rep(200, 5), rep(220, 5)))
-summary(er_data)
-summary(rf_power)
+erData <- c(575, 542, 530, 539, 570, 565, 593, 590, 579, 610, 600, 651, 610, 
+            637, 629, 725, 700, 715, 685, 710)
+rfPower <- as.factor(c(rep(160, 5), rep(180, 5), rep(200, 5), rep(220, 5)))
+summary(erData)
+summary(rfPower)
 ```
 The null hypothesis is obviously that mean etching rate is the same across all the groups.
 
 ```{r}
-anova(lm(er_data ~ rf_power))
+anova(lm(erData ~ rfPower))
 ```
 Hence, we reject the null hypothesis and conclude that the etching rate varies by the RF power.One thing to take care of while using ANOVA is that the variance across the groups should be the same. To test this assumption, a levene test could be conducted.
 
 ```{r}
-car::leveneTest(er_data, rf_power)
+car::leveneTest(erData, rfPower)
 ```
 
 Since the null hypothesis is that the population variances are the same, and we cannot reject the null, we conclude that the homogeneous assumption is valid. Usually, this test is accompanied with a visual inspection of the residual plot data.
@@ -145,14 +141,14 @@ Further, though the ANOVA established that the group means are different, we are
 To get over this, usually a Tukey test is employed, which keeps the power of the test constant. This test reveals which groups have different means.
 
 ```{r}
-TukeyHSD(aov(er_data ~ rf_power))
+TukeyHSD(aov(erData ~ rfPower))
 ```
 From this test, we conclude that all pairs of means differ.
 
 In many cases, one of the treatments is a control, and we wish to compare the remaining $a-1$ treatment means with the control. In this case, we can use a dunnett test.
 
 ```{r}
-summary(multcomp::glht(aov(er_data ~ rf_power)))
+summary(multcomp::glht(aov(erData ~ rfPower)))
 ```
 The first group is always considered to be the control, hence in case a different control is warranted, we need to change the order of the data.
 
@@ -172,36 +168,35 @@ The data collected is as follows:
 dc <- c(118.8,122.6,115.6,113.6,119.5,115.9,115.8,115.1,116.9,115.4,115.6,107.9)
 dc_mk <- c(105.4,101.1,102.7,97.1,101.9,98.9,100.0,99.8,102.6,100.9,104.5,93.5)
 mc <- c(102.1,105.8,99.6,102.7,98.8,100.9,102.8,98.7,94.7,97.8,99.7,98.6)
-choc_df <- data_frame("bp_levels" = c(dc,dc_mk,mc), 
-                      "factor" = as.factor(c(rep("dc",12), rep("dc_mk", 12), rep("mc", 12)))
-)
-choc_df
+chocDf <- data_frame("bp_levels" = c(dc,dc_mk,mc), 
+                      "factor" = as.factor(c(rep("dc",12), rep("dc_mk", 12), rep("mc", 12))))
+glimpse(chocDf)
 ```
 We begin as usual by performing an ANOVA for the mean differences across the factors.
 
 ```{r}
-car::leveneTest(choc_df$bp_levels, choc_df$factor)
+car::leveneTest(chocDf$bp_levels, chocDf$factor)
 ```
 Cannot reject the null, so variance across factors is okay. We can proceed to ANOVA.
 
 ```{r}
 boxplot(bp_levels ~ factor, 
-        data = choc_df)
+        data = chocDf)
 ```
 
 
 ```{r}
-anova(lm(bp_levels ~ factor, data = choc_df))
+anova(lm(bp_levels ~ factor, data = chocDf))
 ```
 Clearly, the null is rejected and there is a significant difference in blood plasma across the various chocolate categories, we can follow this with a specific test on which pairs are different using the Tukey test.
 
 ```{r}
-summary(multcomp::glht(aov(choc_df$bp_levels ~ choc_df$factor)))
+summary(multcomp::glht(aov(chocDf$bp_levels ~ chocDf$factor)))
 ```
 So, all three differences are significant.
 
 ```{r}
-plot(lm(bp_levels ~ factor, data = choc_df))
+plot(lm(bp_levels ~ factor, data = chocDf))
 ```
 
 Q-Q shows some concerns.
@@ -211,23 +206,23 @@ Q-Q shows some concerns.
 In this experiment a soft drink manufacturer has designed three different end-aisles and is looking to see which of these drives the maximum increase in sales. 15 stores were chosen and the three designs were randomly allocated to these stores. The data collected is as follows:
 
 ```{r}
-pc_inc_sales <- c(5.43,5.71,6.22,6.01,5.29,6.24,6.71,5.98,5.66,6.60,8.79,9.20,
-                  7.90,8.15,7.55)
+pcIncSales <- c(5.43,5.71,6.22,6.01,5.29,6.24,6.71,5.98,5.66,6.60,8.79,9.20,
+                7.90,8.15,7.55)
 design <- as.factor(c(rep(1, 5), rep(2, 5), rep(3, 5)))
-boxplot(pc_inc_sales ~ design,
+boxplot(pcIncSales ~ design,
         xlab = "Design",
-        ylab = "increase in sales")
+        ylab = "Increase in sales")
 ```
 
 No major outliers to worry about. Now we test for variance equality.
 
 ```{r}
-car::leveneTest(pc_inc_sales, design)
+car::leveneTest(pcIncSales, design)
 ```
 Cannot reject null, so homogeneity of variance is valid. We can proceed to ANOVA.
 
 ```{r}
-anova(lm(pc_inc_sales ~ design))
+anova(lm(pcIncSales ~ design))
 ```
 
 Null is rejected, hence there is a difference in mean sale across the three designs.
@@ -235,12 +230,12 @@ Null is rejected, hence there is a difference in mean sale across the three desi
 We now execute the Tukey test to compare each pair.
 
 ```{r}
-TukeyHSD(aov(pc_inc_sales ~ design))
+TukeyHSD(aov(pcIncSales ~ design))
 ```
 Clearly, there is no difference in sale from design 1 to 2, but they have a different impact compared with design 3. Essentially, design 3 has a different impact on sales compared to design 1 or 2. 
 
 ```{r}
-summary(multcomp::glht(aov(pc_inc_sales ~ design)))
+summary(multcomp::glht(aov(pcIncSales ~ design)))
 ```
 The Dunnett test confirms the same finding.
 
@@ -255,22 +250,22 @@ l1 <- c(98,97,99,96)
 l2 <- c(91,90,93,92)
 l3 <- c(96,95,97,95)
 l4 <- c(95,96,99,98)
-strength_df <- data_frame(strength = c(l1,l2,l3,l4), 
-                          loom = as.factor(c(rep(1,4), rep(2,4), rep(3,4), rep(4,4))))
+strengthDf <- data_frame(strength = c(l1,l2,l3,l4), 
+                         loom = as.factor(c(rep(1,4), rep(2,4), rep(3,4), rep(4,4))))
 ```
 
 Next we run the ANOVA.
 
 ```{r}
-res <- anova(lm(strength ~ loom, data = strength_df))
+res <- anova(lm(strength ~ loom, data = strengthDf))
 print(res)
 ```
 Clearly, we reject the null and conclude that the looms are different. The components of variance are estimated as follows:
 
 ```{r}
-var_pop <- res$`Mean Sq`[2]
-var_tau <- (res$`Mean Sq`[1] - var_pop)/4
-print(c(var_pop, var_tau),
+varPop <- res$`Mean Sq`[2]
+varTau <- (res$`Mean Sq`[1] - varPop)/4
+print(c(varPop, varTau),
       digits = 4)
 ```
 
@@ -288,16 +283,16 @@ pemf2 <- c(4.73,5.81,5.69,3.86,4.06,6.56,8.34,3.01,6.71,6.51,1.7,5.89,6.55,5.34,
 pemf4 <- c(7.03,4.65,6.65,5.49,6.98,4.85,7.26,5.92,5.58,7.91,4.90,4.54,8.18,5.42,
            6.03,7.04,5.17,7.60,7.9,7.91)
 
-bmd_data <- c(sham, pemf1, pemf2, pemf4)
-pemf_levels <- as.factor(c(rep(1, length(sham)), rep(2, length(pemf1)),
-                           rep(3, length(pemf2)), rep(4, length(pemf4))))
+bmdData <- c(sham, pemf1, pemf2, pemf4)
+pemfLevels <- as.factor(c(rep(1, length(sham)), rep(2, length(pemf1)),
+                          rep(3, length(pemf2)), rep(4, length(pemf4))))
                                                      
 ```
 
 We are interested in finding out if the PEMS dose affects the BMD loss, and if it does, which specific treatment produces this effect.
 
 ```{r}
-anova(lm(bmd_data ~ pemf_levels))
+anova(lm(bmdData ~ pemfLevels))
 ```
 We cannot reject null, so there is no difference in the means across the various dosages.
 
@@ -306,19 +301,19 @@ We cannot reject null, so there is no difference in the means across the various
 The author plays golf across three seasons in a year and believes that his score across all seasons is not the same and specifically that his best score is achieved in Summer and the worst is in Winter. The data collected is as follows:
 
 ```{r}
-summ_scores <- c(83,85,85,87,90,88,88,91,90)
-shold_scores <- c(91,87,84,87,85,86,83)
-winter_scores <- c(94,91,87,85,87,91,92,86)
-golf_scores <- c(summ_scores,shold_scores,winter_scores)
-season_levels <- as.factor(c(rep("su", length(summ_scores)),
-                             rep("sh", length(shold_scores)),
-                             rep("wi", length(winter_scores))))
+summScores <- c(83,85,85,87,90,88,88,91,90)
+sholdScores <- c(91,87,84,87,85,86,83)
+winterScores <- c(94,91,87,85,87,91,92,86)
+golfScores <- c(summScores, sholdScores, winterScores)
+seasonLevels <- as.factor(c(rep("su", length(summScores)),
+                             rep("sh", length(sholdScores)),
+                             rep("wi", length(winterScores))))
 ```
 
 Then we analyse if the mean scores are statistically different across the groups.
 
 ```{r}
-anova(lm(golf_scores ~ season_levels))
+anova(lm(golfScores ~ seasonLevels))
 ```
 
 Hence we are unable to reject the null hypothesis.
@@ -326,7 +321,7 @@ Hence we are unable to reject the null hypothesis.
 To check the robustness of the model.
 
 ```{r}
-plot(lm(golf_scores ~ season_levels),
+plot(lm(golfScores ~ seasonLevels),
      pch = 20)
 ```
 
@@ -335,26 +330,26 @@ plot(lm(golf_scores ~ season_levels),
 In an experiment, four different feed rates are investigated in a machine producing a component part. Prior experience indicates that only dispersion effects are present. Consequently we wish to test if the variance across the various feed rates is the same. The data collected is as follows:
 
 ```{r}
-feed_10 <- c(0.09, 0.10, 0.13, 0.08, 0.07)
-feed_12 <- c(0.06, 0.09, 0.12, 0.07, 0.12)
-feed_14 <- c(0.11, 0.08, 0.08, 0.05, 0.06)
-feed_16 <- c(0.19, 0.13, 0.15, 0.20, 0.11)
+feed10 <- c(0.09, 0.10, 0.13, 0.08, 0.07)
+feed12 <- c(0.06, 0.09, 0.12, 0.07, 0.12)
+feed14 <- c(0.11, 0.08, 0.08, 0.05, 0.06)
+feed16 <- c(0.19, 0.13, 0.15, 0.20, 0.11)
 
-feed_data <- c(feed_10, feed_12, feed_14, feed_16)
-feed_levels <- as.factor(c(rep(10, 5), rep(12, 5), rep(14, 5), rep(16, 5)))
+feedData <- c(feed10, feed12, feed14, feed16)
+feedLevels <- as.factor(c(rep(10, 5), rep(12, 5), rep(14, 5), rep(16, 5)))
 
-bartlett.test(x = feed_data, g = feed_levels)
+bartlett.test(x = feedData, g = feedLevels)
 ```
 
 Cannot reject null hypothesis. So variances are equal. We can do multiple pairwise tests as well.
 
 ```{r}
-var.test(feed_12, feed_14)
+var.test(feed12, feed14)
 ```
 Cannot reject null.
 
 ```{r}
-var.test(feed_14, feed_16)
+var.test(feed14, feed16)
 ```
 Cannot reject null.
 
@@ -370,42 +365,42 @@ We are interested in finding out if the treatment means are equal or not. Combin
 A medical device manufacturer suspects that the extrusion pressure (PSI) used in their manufacturing is responsible for the occurrence of flicks and designs a block design experiment to check this. The data collected is as follows:
 
 ```{r}
-extr_press <- as.factor(c(8500, 8700, 8900, 9100))
+extrPress <- as.factor(c(8500, 8700, 8900, 9100))
 batch1 <- c(90.3,92.5,85.5,82.5)
 batch2 <- c(89.2,89.5,90.8,89.5)
 batch3 <- c(98.2,90.6,89.6,85.6)
 batch4 <- c(93.9,94.7,86.2,87.4)
 batch5 <- c(87.4,87.0,88.0,78.9)
 batch6 <- c(97.9,95.8,93.4,90.7)
-graft_data <- data.frame(batch=c(rep(1,4), rep(2, 4), rep(3, 4), rep(4, 4), 
+graftData <- data.frame(batch=c(rep(1,4), rep(2, 4), rep(3, 4), rep(4, 4), 
                                    rep(5, 4), rep(6, 4)),
-                         psi=rep(1:4, 6),
-                         flicks=c(batch1, batch2, batch3, batch4, batch5, batch6))
-graft_data
+                        psi=rep(1:4, 6),
+                        flicks=c(batch1, batch2, batch3, batch4, batch5, batch6))
+glimpse(graftData)
 ```
 Notice carefully how the blocks and the factor levels have been captured in the data. We can now make an interaction plot to see if there is an interaction between the blocks and the factor levels.
 
 ```{r}
-with(graft_data, interaction.plot(psi, batch, flicks))
+with(graftData, interaction.plot(psi, batch, flicks))
 ```
 Looks like interactions exist. Technically, we should proceed carefully to ANOVA.
 
 ```{r}
-with(graft_data, anova(aov(flicks ~ as.factor(batch) + as.factor(psi))))
+with(graftData, anova(aov(flicks ~ as.factor(batch) + as.factor(psi))))
 ```
 In this case we are worried about the PSI levels impacting the flicks in the product and according to this table, it looks like the suspicion was right (null is rejected).
 
 If we didnt consider the separation of the blocks, we would have overestimated the sum of squares contributed by the error.
 
 ```{r}
-with(graft_data, anova(aov(flicks ~ as.factor(psi))))
+with(graftData, anova(aov(flicks ~ as.factor(psi))))
 ```
 Notice the massive increase in the sum of squares of the residuals.
 
 To check the adequacy of the model, we do the normal plotting ritual.
 
 ```{r}
-with(graft_data, plot(lm(flicks ~ as.factor(batch) + as.factor(psi)),
+with(graftData, plot(lm(flicks ~ as.factor(batch) + as.factor(psi)),
                       pch = 20))
 ```
 
@@ -418,16 +413,15 @@ In some cases, all the treatments cannot be applied randomly within the block. I
 A chemical engineer is experimenting with 4 types of catalysts and measuring the reaction time for each. Since the raw material batch might effect the reaction time, he resorts to a block design, but each batch can be tested only with three catalysts. So, the final resort is the incomplete block design, and the data collected is as follows.
 
 ```{r}
-react_times <- c(73, 73, 75, 74, 75, 75, 67, 68, 72, 71, 72, 75)
+reactionTimes <- c(73, 73, 75, 74, 75, 75, 67, 68, 72, 71, 72, 75)
 catalyst <- c(1, 3, 4, 1, 2, 3, 2, 3, 4, 1, 2, 4)
-raw_material <- c(rep(1, 3), rep(2, 3), rep(3, 3), rep(4, 3))
-reaction_data <- data_frame(raw_material, catalyst, react_times)
-reaction_data
+rawMaterial <- c(rep(1, 3), rep(2, 3), rep(3, 3), rep(4, 3))
+reactionData <- data_frame(rawMaterial, catalyst, reactionTimes)
+glimpse(reactionData)
 ```
 
 ```{r}
-with(reaction_data, anova(aov(react_times ~ as.factor(raw_material) 
-                                            + as.factor(catalyst))))
+with(reactionData, anova(aov(reactionTimes ~ as.factor(rawMaterial) + as.factor(catalyst))))
 ```
 Since the null is means are equal, it is rejected and looks like both the treatment (catalyst) and batch (raw material) have a significant effect in the reaction time.
 
@@ -438,23 +432,23 @@ Lets now look at some similar experiments on randomized block design.
 Three different solutions are being compared to study effectiveness of retarding bateria growth in milk. Since only 3 trials can be run in a day and the day might also impact the variability, a randomized block design was chosen. The data collected is as follows:
 
 ```{r}
-bact_growth <- c(13, 16, 5, 22, 25, 4, 18, 16, 2, 39, 44, 2)
+bactGrowth <- c(13, 16, 5, 22, 25, 4, 18, 16, 2, 39, 44, 2)
 day <- c(rep(1, 3), rep(2, 3), rep(3, 3), rep(4, 3))
 solution <- c(rep(1:3, 4))
-solution_data <- data_frame(day, solution, bact_growth)
-solution_data
+solutionData <- data_frame(day, solution, bactGrowth)
+glimpse(solutionData)
 ```
 
 We now proceed as usuall to check for the ANOVA using both the factors - block and treatment:
 
 ```{r}
-with(solution_data, anova(aov(bact_growth ~ as.factor(day) + as.factor(solution))))
+with(solutionData, anova(aov(bactGrowth ~ as.factor(day) + as.factor(solution))))
 ```
 
 So, it looks like the average retardation of bacteria is different across the solutions, but the blocks are not different.
 
 ```{r}
-with(solution_data, plot(aov(bact_growth ~ as.factor(day) + as.factor(solution))))
+with(solutionData, plot(aov(bactGrowth ~ as.factor(day) + as.factor(solution)), pch = 20))
 ```
 
 
@@ -463,22 +457,22 @@ with(solution_data, plot(aov(bact_growth ~ as.factor(day) + as.factor(solution))
 In an analysis of direct mail marketing, three designs of a brichure are mailed to 5000 randomly chosen potential customers in four regions. It is believed that the regions are also different in terms of the customer base and hence a randomized blcoking design is employed. The response rate data collected is as follows:
 
 ```{r}
-response_rate <- c(250, 400, 275, 350, 525, 340, 219, 390, 200, 375, 580, 310)
+responseRate <- c(250, 400, 275, 350, 525, 340, 219, 390, 200, 375, 580, 310)
 region <- c(rep("NE", 3), rep("NW", 3), rep("SE", 3), rep("SW", 3))
 design <- rep(1:3, 4)
-ad_data <- data_frame(region, design, response_rate)
-ad_data
+adData <- data_frame(region, design, responseRate)
+glimpse(adData)
 ```
 
 Proceed with ANOVA and a verification of the assumptions of normality, etc.
 
 ```{r}
-with(ad_data, anova(aov(response_rate ~ as.factor(region) + as.factor(design))))
+with(adData, anova(aov(responseRate ~ as.factor(region) + as.factor(design))))
 ```
 So, response rates are siginificantly difference across both the designs and also the regions.
 
 ```{r}
-with(ad_data, plot(aov(response_rate ~ as.factor(region) + as.factor(design))))
+with(adData, plot(aov(responseRate ~ as.factor(region) + as.factor(design)), pch = 20))
 ```
 
 Very problematic residual plots are observed.
@@ -486,8 +480,7 @@ Very problematic residual plots are observed.
 We now look at specifically which of the designs is different.
 
 ```{r}
-with(ad_data, summary(multcomp::glht(aov(response_rate ~ as.factor(design) +
-                                                         as.factor(region)))))
+with(adData, summary(multcomp::glht(aov(responseRate ~ as.factor(design) + as.factor(region)))))
 ```
 
 So, design 3 is not different from design 1 while design 2 is certainly different. NE and SE are similar in response rates while, NW and SW are different.
@@ -497,29 +490,29 @@ So, design 3 is not different from design 1 while design 2 is certainly differen
 Six different algorithms were studied to estimate software development costs by applying these to six different projects. A randomized block design was used and data collected is as follows:
 
 ```{r}
-alg_cost <- c(1244, 281, 220, 225, 19, -20, 21, 129, 84, 83, 11, 35,
-              82, 396, 458, 425, -34, -53, 2221, 1306, 543, 552, 121, 170,
-              905, 336, 300, 291, 15, 104, 839, 910, 794, 826, 103, 199)
+algCost <- c(1244, 281, 220, 225, 19, -20, 21, 129, 84, 83, 11, 35,
+             82, 396, 458, 425, -34, -53, 2221, 1306, 543, 552, 121, 170,
+             905, 336, 300, 291, 15, 104, 839, 910, 794, 826, 103, 199)
 project <- c(rep(1, 6), rep(2, 6), rep(3, 6), rep(4, 6), rep(5, 6), rep(6, 6))
 alg <- rep(1:6, 6)
-alg_data <- data_frame(alg_cost, project, alg)
+algData <- data_frame(algCost, project, alg)
 ```
 
 We can now run ANOVA on the algorithm blocks.
 
 ```{r}
-with(alg_data, anova(aov(alg_cost ~ as.factor(alg) + as.factor(project))))
+with(algData, anova(aov(algCost ~ as.factor(alg) + as.factor(project))))
 ```
 
 So, the algorithms differ in terms of mean cost estimation accuracy. The block effects are also significant. We now check our assumptions.
 
 ```{r}
-with(alg_data, plot(aov(alg_cost ~ as.factor(alg) + as.factor(project))))
+with(algData, plot(aov(algCost ~ as.factor(alg) + as.factor(project)), pch = 20))
 ```
 This looks good except a few outliers. We now check which algorithm is different from others.
 
 ```{r}
-with(alg_data, summary(multcomp::glht(aov(alg_cost ~ as.factor(alg)))))
+with(algData, summary(multcomp::glht(aov(algCost ~ as.factor(alg)))))
 ```
 
 It turns out only Algorithm 5 and 6 are different from the base algorithm 1. We can go with either of these algorithms as our proposal.
@@ -529,39 +522,38 @@ It turns out only Algorithm 5 and 6 are different from the base algorithm 1. We 
 An engineer is studying the mileage performance characteristics of five types of gasoline additives. He wishes to use cars as blocks in a randomized block design but due to lack of time he used an incomplete block design. The data collected is as follows:
 
 ```{r}
-mileage_data <- data_frame(car = c(rep(1, 4), rep(2, 4), rep(3, 4), 
-                                   rep(4, 4), rep(5, 4)),
-                           additive = c(2:5, c(1:2, 4:5), c(1, 3:5), 
+mileageData <- data_frame(car = c(rep(1, 4), rep(2, 4), rep(3, 4), 
+                                  rep(4, 4), rep(5, 4)),
+                          additive = c(2:5, c(1:2, 4:5), c(1, 3:5), 
                                         1:4, c(1:3, 5)),
-                           mpg = c(14, 12, 13, 11, 17, 14, 11, 12, 
+                          mpg = c(14, 12, 13, 11, 17, 14, 11, 12, 
                                    14, 13, 11, 10, 13, 13, 12, 12,
                                    12, 10, 9, 8))
-mileage_data
+glimpse(mileageData)
 ```
 
 Once the data is arranged this way, we can go for the normal ANOVA.
 
 ```{r}
-with(mileage_data, anova(aov(mpg ~ as.factor(car) + as.factor(additive))))
+with(mileageData, anova(aov(mpg ~ as.factor(car) + as.factor(additive))))
 ```
 
 We reject the null and conclude that mileage differs across the additives. Lets check the assumptions.
 
 ```{r}
-with(mileage_data, plot(aov(mpg ~ as.factor(car) + as.factor(additive))))
+with(mileageData, plot(aov(mpg ~ as.factor(car) + as.factor(additive)), pch = 20))
 ```
 
 Not a great example of data. To check which specific additive is performing differently, we can use the Dunnett test.
 
 ```{r}
-with(mileage_data, summary(multcomp::glht(aov(mpg ~ as.factor(additive) + 
-                                                    as.factor(car)))))
+with(mileageData, summary(multcomp::glht(aov(mpg ~ as.factor(additive) + as.factor(car)))))
 ```
 
 Only Car 5 is significantly different from the other blocks. And additives 3, 4 and 5 are different from additive 1. We can discard additive 2 at this stage.
 
 ```{r}
-with(mileage_data, summary(lm(mpg ~ as.factor(additive))))
+with(mileageData, summary(lm(mpg ~ as.factor(additive))))
 ```
 
 Additive 5 seems to have the greatest impact.
@@ -576,60 +568,60 @@ Consider a battery designer who is experimenting with three different kinds of m
 
 ```{r}
 
-battery_data <- data_frame(life = c(130, 155, 74, 180, 150, 188, 159, 126, 138, 110, 168, 160,
-                                    34, 40, 80, 75, 136, 122, 106, 115, 174, 120, 150, 139,
-                                    20, 70, 82, 58, 25, 70, 58, 45, 96, 104, 82, 60),
-                           material = c(rep(1, 4), rep(2, 4), rep(3, 4),
+batteryData <- data_frame(life = c(130, 155, 74, 180, 150, 188, 159, 126, 138, 110, 168, 160,
+                                   34, 40, 80, 75, 136, 122, 106, 115, 174, 120, 150, 139,
+                                   20, 70, 82, 58, 25, 70, 58, 45, 96, 104, 82, 60),
+                          material = c(rep(1, 4), rep(2, 4), rep(3, 4),
                                         rep(1, 4), rep(2, 4), rep(3, 4),
                                         rep(1, 4), rep(2, 4), rep(3, 4)),
-                           temperature = c(rep(15, 12), rep(70, 12), rep(125, 12)))
-battery_data
+                          temperature = c(rep(15, 12), rep(70, 12), rep(125, 12)))
+glimpse(batteryData)
 ```
 
 The additional complication with this sort from the randomized block design seen earlier is the fact that there is an expectation of interaction effects. We might begin by looking at an interaction plot to confirm our expectation.
 
 ```{r}
-with(battery_data, interaction.plot(as.factor(temperature), as.factor(material), 
-                                    life,
-                                    type="b",
-                                    pch=19,
-                                    fixed=TRUE,
-                                    xlab = "Temperature",
-                                    ylab = "Average Life",
-                                    trace.label = "Material"))
+with(batteryData, interaction.plot(as.factor(temperature), as.factor(material), 
+                                   life,
+                                   type="b",
+                                   pch=19,
+                                   fixed=TRUE,
+                                   xlab = "Temperature",
+                                   ylab = "Average Life",
+                                   trace.label = "Material"))
 ```
 Interaction confirmed. Lets proceed with ANOVA.
 
 ```{r}
-with(battery_data, anova(aov(life ~ as.factor(temperature) * as.factor(material))))
+with(batteryData, anova(aov(life ~ as.factor(temperature) * as.factor(material))))
 ```
 
 This analysis confirms both the main and the interaction effects.
 
 ```{r}
-with(battery_data, plot(aov(life ~ as.factor(temperature) * as.factor(material))))
+with(batteryData, plot(aov(life ~ as.factor(temperature) * as.factor(material)), pch = 20))
 ```
 No major alarms in the adequacy checking plots.
 
 Once the null is rejected finer probing into which specific factor levels are different can be diagnozed at specific levels of other factors using the Tukey pairwise test. For example, we might decide to probe the relative difference in the mean battery life at a temperature of 70 F.
 
 ```{r}
-battery_data_70 <- subset(battery_data, temperature == 70)
-with(battery_data_70, TukeyHSD(aov(life ~ as.factor(material))))
+batteryData70 <- batteryData %>% filter(temperature == 70)
+with(batteryData70, TukeyHSD(aov(life ~ as.factor(material))))
 ```
 Hence, at this temperature there is no difference in the life of materials 2 or 3.
 
 If we assume there is no interaction between the factors:
 
 ```{r}
-with(battery_data, anova(aov(life ~ as.factor(temperature) + as.factor(material))))
+with(batteryData, anova(aov(life ~ as.factor(temperature) + as.factor(material))))
 ```
 
 This indicates that the main effects are significant. Now, lets look for the adequacy checking:
 
 ```{r}
-with(battery_data, plot(aov(life ~ as.factor(temperature) + as.factor(material)),
-                        pch = 19))
+with(batteryData, plot(aov(life ~ as.factor(temperature) + as.factor(material)),
+                       pch = 20))
 ```
 
 The pattern in the residuals vs fitted values indicates that we are missing the interaction term.
@@ -641,24 +633,22 @@ Sometimes a factorial design is executed with only one replicate. In this case, 
 The impurities in a chemical product are affected by two factors - pressure and temperature. The data from a single replicate of a factorial experiment are as follows:
 
 ```{r}
-impurity_data <- data_frame(pressure = c(rep(25, 3), rep(30, 3), rep(35, 3),
+impurityData <- data_frame(pressure = c(rep(25, 3), rep(30, 3), rep(35, 3),
                                          rep(40, 3), rep(45, 3)),
-                            temperature = c(rep(c(100, 125, 150), 5)),
-                            impurities = c(5, 3, 1, 4, 1, 1, 6, 4, 3, 3, 2, 1, 
+                           temperature = c(rep(c(100, 125, 150), 5)),
+                           impurities = c(5, 3, 1, 4, 1, 1, 6, 4, 3, 3, 2, 1, 
                                            5, 3, 2))
-impurity_data
+glimpse(impurityData)
 ```
 
 ```{r}
-with(impurity_data, summary(aov(impurities ~ as.factor(temperature) *
-                                           as.factor(pressure))))
+with(impurityData, summary(aov(impurities ~ as.factor(temperature) * as.factor(pressure))))
 ```
 
 However, as we noted before, it is not possible to extricate the error terms from the interaction terms and the ANOVA will not fit due to this problem. 
 
 ```{r}
-with(impurity_data, anova(aov(impurities ~ as.factor(temperature) *
-                                           as.factor(pressure))))
+with(impurityData, anova(aov(impurities ~ as.factor(temperature) * as.factor(pressure))))
 ```
 As we can see, residuals sum of squares is zero. This requires a manual separation of the interaction effect and the residual errors (see page 204).
 
@@ -669,24 +659,22 @@ This model of factorial experiments can be easily extended to include more than 
 A process engineer is trying to understand the sources of variability in the fill heights in bottles produced by a soft drink manufacturer. He can control three variables in the process: percent carbonation, operating pressure and the line speed. Two replicates are decided to be run in a factorial design. Response variable is the average deviation from target fill height. The data collected are as follows.
 
 ```{r}
-fill_height_data <- data_frame(pressure = as.factor(c(rep(25, 12), rep(30, 12))),
-                               carbonation = as.factor(rep(c(10, 10, 12, 12, 14, 14), 4)),
-                               line_speed = as.factor(c(rep(200, 6), rep(250, 6), 
-                                              rep (200, 6), rep(250, 6))),
-                               deviation = c(-3, -1, 0, 1, 5, 4, -1, 0, 2, 1, 7, 6,
-                                             -1, 0, 2, 3, 7, 9, 1, 1, 6, 5, 10, 11))
-fill_height_data
+fillHeightData <- data_frame(pressure = as.factor(c(rep(25, 12), rep(30, 12))),
+                             carbonation = as.factor(rep(c(10, 10, 12, 12, 14, 14), 4)),
+                             line_speed = as.factor(c(rep(200, 6), rep(250, 6), rep (200, 6), rep(250, 6))),
+                             deviation = c(-3, -1, 0, 1, 5, 4, -1, 0, 2, 1, 7, 6, -1, 0, 2, 3, 7, 9, 1, 1, 6, 5, 10, 11))
+glimpse(fillHeightData)
 ```
 We proceed to ANOVA as usual will all possible interactions.
 
 ```{r}
-with(fill_height_data, anova(aov(deviation ~ carbonation * pressure * line_speed)))
+with(fillHeightData, anova(aov(deviation ~ carbonation * pressure * line_speed)))
 ```
 Main effects are clearly significant, while the interaction effects are not so much. Procceding with the adequacy checks.
 
 ```{r}
-with(fill_height_data, plot(aov(deviation ~ carbonation * pressure * line_speed),
-                            pch = 19))
+with(fillHeightData, plot(aov(deviation ~ carbonation * pressure * line_speed),
+                          pch = 20))
 ```
 
 Near perfect residuals vs fitted values.
@@ -694,11 +682,11 @@ Near perfect residuals vs fitted values.
 We can depict the interaction (or the lack thereof) using a series of interaction plots.
 
 ```{r}
-with(fill_height_data, interaction.plot(carbonation, pressure, deviation))
+with(fillHeightData, interaction.plot(carbonation, pressure, deviation))
 ```
 
 ```{r}
-with(fill_height_data, interaction.plot(carbonation, line_speed, deviation))
+with(fillHeightData, interaction.plot(carbonation, line_speed, deviation))
 ```
 So far we have assumed that the factors are categorical, but often we have to deal with two or more factors that are metric. In this case, we resort to response curves. We illustrate with an example.
 
@@ -707,17 +695,18 @@ So far we have assumed that the factors are categorical, but often we have to de
 The effective life of a cutting tool in a numerically controlled machine depends on the cutting speed and the tool angle. Three speeds and three angles were selected and a factorial experiment with 2 replicates was performed. The data collected is as follows:
 
 ```{r}
-cutting_tool_data <- data_frame(speed = c(rep(125, 6), rep(150, 6), rep(175, 6)),
-                                angle = rep(c(15, 15, 20, 20, 25, 25), 3),
-                                life = c(-2, -1, 0, 2, -1, 0, -3, 0, 1, 3, 5, 6,
-                                         2, 3, 4, 6, 0, -1))
-cutting_tool_data
+cuttingToolData <- data_frame(speed = c(rep(125, 6), rep(150, 6), rep(175, 6)),
+                              angle = rep(c(15, 15, 20, 20, 25, 25), 3),
+                              life = c(-2, -1, 0, 2, -1, 0, -3, 0, 1, 3, 5, 6,
+                                        2, 3, 4, 6, 0, -1))
+glimpse(cuttingToolData)
 ```
 
 ```{r}
-tool_lm <- lm(life ~ angle * speed + I(angle^2) * I(speed^2) + angle:I(speed^2) +
-                     speed:I(angle^2), cutting_tool_data)
-summary(tool_lm)
+summary(toolModel <- lm(life ~ angle * speed + I(angle^2) * I(speed^2) + angle:I(speed^2) +
+                       speed:I(angle^2), 
+                data = cuttingToolData))
+
 ```
 We can estimate this experiment as a regression model and then use it to predict output on new or simulated data.
 
@@ -728,28 +717,27 @@ We can also incorporate blocking into a factorial design to account for nuisance
 In a study of detecing methods for improving the ability to detect targets on a radar scope, an engineer suspects that ground clutter and the type of filter placed on the screen act as factors that determing the intensity at which a target is detected. However, operators of the machine might differ in skill levels and hence pose problems in generalizing results of the study. Hence a randomized factorial blocking design is employed with three levels of ground clutter and two kinds of filters. Four operators are utilized as blocks and the data collected is as follows:
 
 ```{r}
-intensity_data <- data_frame(operator = as.factor(c(rep(1, 6), rep(2, 6), 
+intensityData <- data_frame(operator = as.factor(c(rep(1, 6), rep(2, 6), 
                                                      rep(3, 6), rep(4, 6))),
-                             filter_type = as.factor(rep(c(rep(1, 3), 
+                            filter_type = as.factor(rep(c(rep(1, 3), 
                                                            rep(2, 3)), 4)),
-                             ground_clutter = as.factor(rep(c("L", "M", "H"), 8)),
-                             intensity = c(90, 102, 114, 86, 87, 93, 96, 106, 
-                                           112, 84, 90, 91, 100, 105, 108, 92,
-                                           97, 95, 92, 96, 98, 81, 80, 83))
-intensity_data
+                            ground_clutter = as.factor(rep(c("L", "M", "H"), 8)),
+                            intensity = c(90, 102, 114, 86, 87, 93, 96, 106, 
+                                          112, 84, 90, 91, 100, 105, 108, 92,
+                                          97, 95, 92, 96, 98, 81, 80, 83))
+glimpse(intensityData)
 ```
 We can now proceed with the ANOVA:
 
 ```{r}
-with(intensity_data, anova(aov(intensity ~ ground_clutter * filter_type +
+with(intensityData, anova(aov(intensity ~ ground_clutter * filter_type +
                                            operator)))
 ```
 
 The results dont show strong interaction between factors but the main effects of the factors and the blocks are significant.
 
 ```{r}
-with(intensity_data, plot(aov(intensity ~ ground_clutter * filter_type +
-                                           operator)))
+with(intensityData, plot(aov(intensity ~ ground_clutter * filter_type + operator), pch = 20))
 ```
 
 We now cement our understanding of this simple factorial design with a few more examples.
@@ -759,47 +747,46 @@ We now cement our understanding of this simple factorial design with a few more 
 The percentage of hardwood concentration in raw pulp, the vat pressure and the cooking time of pulp are being investigated for their effects on the strength of paper. A 3 x 3 x 2 factorial design is run with 2 replicates, and the data collected is as follows:
 
 ```{r}
-paper_data <- data_frame(cooking_time = as.factor(c(rep(3, 18), rep(4, 18))),
-                         pressure = as.factor(c(rep(400, 6), rep(500, 6), 
+paperData <- data_frame(cooking_time = as.factor(c(rep(3, 18), rep(4, 18))),
+                        pressure = as.factor(c(rep(400, 6), rep(500, 6), 
                                                 rep(650, 6), rep(400, 6), 
                                                 rep(500, 6), rep(650, 6))),
-                         hardwood_pc = as.factor(rep(c(rep(2, 2), rep(4, 2), 
+                        hardwood_pc = as.factor(rep(c(rep(2, 2), rep(4, 2), 
                                                        rep(8, 2)), 6)),
-                         strength = c(196.6, 196.0, 198.5, 197.2, 197.5, 196.6,
-                                      197.7, 196.0, 196.0, 196.9, 195.6, 196.2,
-                                      199.8, 199.4, 198.4, 197.6, 197.4, 198.1,
-                                      198.4, 198.6, 197.5, 198.1, 197.6, 198.4, 
-                                      199.6, 200.4, 198.7, 198.0, 197.0, 197.8,
-                                      200.6, 200.9, 199.6, 199.0, 198.5, 199.8))
-paper_data
+                        strength = c(196.6, 196.0, 198.5, 197.2, 197.5, 196.6,
+                                     197.7, 196.0, 196.0, 196.9, 195.6, 196.2,
+                                     199.8, 199.4, 198.4, 197.6, 197.4, 198.1,
+                                     198.4, 198.6, 197.5, 198.1, 197.6, 198.4, 
+                                     199.6, 200.4, 198.7, 198.0, 197.0, 197.8,
+                                     200.6, 200.9, 199.6, 199.0, 198.5, 199.8))
+glimpse(paperData)
 ```
 Proceed with ANOVA:
 
 ```{r}
-with(paper_data, anova(aov(strength ~ cooking_time * pressure * hardwood_pc)))
+with(paperData, anova(aov(strength ~ cooking_time * pressure * hardwood_pc)))
 ```
 Main effects are significant but the interactions are not. We can check model adequacy and then proceed to cerify lack of major interaction via interaction plots.
 
 ```{r}
-with(paper_data, plot(aov(strength ~ cooking_time * pressure * hardwood_pc),
-                      pch = 19))
+with(paperData, plot(aov(strength ~ cooking_time * pressure * hardwood_pc), pch = 20))
 ```
 Nice residual plot, so no major concerns on model adequacy.
 
 ```{r}
-with(paper_data, interaction.plot(pressure, cooking_time, strength,
-                                  type = "b", 
-                                  pch = 19, 
-                                  fixed = TRUE,
-                                  trace.label = "\nCooking \ntime (h)"))
+with(paperData, interaction.plot(pressure, cooking_time, strength,
+                                 type = "b", 
+                                 pch = 20, 
+                                 fixed = TRUE,
+                                 trace.label = "\nCooking \ntime (h)\n"))
 ```
 
 ```{r}
-with(paper_data, interaction.plot(pressure, hardwood_pc, strength,
-                                  type = "b", 
-                                  pch = 19, 
-                                  fixed = TRUE,
-                                  trace.label = "\nHardwood \npercentage"))
+with(paperData, interaction.plot(pressure, hardwood_pc, strength,
+                                 type = "b", 
+                                 pch = 20, 
+                                 fixed = TRUE,
+                                 trace.label = "\nHardwood \npercentage\n"))
 ```
 
 *Experiment 25*
@@ -807,35 +794,35 @@ with(paper_data, interaction.plot(pressure, hardwood_pc, strength,
 The yield of a chemical process is being studied using two factors of interest: temperature and pressure. Three levels of each factor are selected but since only nine runs can be conducted in a day, a randomized block design is employed (with days selected as blocks). The data dollected is as follows:
 
 ```{r}
-yield_data <- data_frame(day = as.factor(c(rep(1, 9), rep(2, 9))),
-                         pressure = as.factor(c(rep(250, 3), rep(260, 3), rep(270, 3),
+yieldData <- data_frame(day = as.factor(c(rep(1, 9), rep(2, 9))),
+                        pressure = as.factor(c(rep(250, 3), rep(260, 3), rep(270, 3),
                                       rep(250, 3), rep(260, 3), rep(270, 3))),
-                         temperature = as.factor(rep(c("L", "M", "H"), 6)),
-                         yield = c(86.3, 88.5, 89.1, 84.0, 87.3, 90.2, 85.8,
-                                   89.0, 91.3, 86.1, 89.4, 91.7, 85.2, 89.9,
-                                   93.2, 87.3, 90.3, 93.7))
-yield_data
+                        temperature = as.factor(rep(c("L", "M", "H"), 6)),
+                        yield = c(86.3, 88.5, 89.1, 84.0, 87.3, 90.2, 85.8,
+                                  89.0, 91.3, 86.1, 89.4, 91.7, 85.2, 89.9,
+                                  93.2, 87.3, 90.3, 93.7))
+glimpse(yieldData)
 ```
 Proceed with ANOVA
 
 ```{r}
-with(yield_data, anova(aov(yield ~ pressure * temperature + day)))
+with(yieldData, anova(aov(yield ~ pressure * temperature + day)))
 ```
 The results confirm the main effects of the factors and the blocking variable but the interaction effect is not established. On to model adequacy:
 
 ```{r}
-with(yield_data, plot(aov(yield ~ pressure * temperature + day),
-                      pch = 19))
+with(yieldData, plot(aov(yield ~ pressure * temperature + day),
+                     pch = 20))
 ```
 
 The residual plot is not pretty. QQ is indicative of some interaction.
 
 ```{r}
-with(yield_data, interaction.plot(pressure, temperature, yield,
-                                  trace.label = "Temperature",
-                                  type = "b",
-                                  pch = c(18, 19, 20),
-                                  fixed = TRUE))
+with(yieldData, interaction.plot(pressure, temperature, yield,
+                                 trace.label = "Temperature\n",
+                                 type = "b",
+                                 pch = c(18, 19, 20),
+                                 fixed = TRUE))
 ```
 
 *Experiment 26*
@@ -843,34 +830,33 @@ with(yield_data, interaction.plot(pressure, temperature, yield,
 An experiment was conducted to study the life of two different brands of batteries in three different devices. We need to select a preferred battery brand (the data collected is as follows):
 
 ```{r}
-battery_life_data <- data_frame(battery = as.factor(c(rep("A", 6), rep("B", 6))),
-                           device = as.factor(c(rep("Radio", 2), rep("Camera", 2), 
+batteryLifeData <- data_frame(battery = as.factor(c(rep("A", 6), rep("B", 6))),
+                              device = as.factor(c(rep("Radio", 2), rep("Camera", 2), 
                                                 rep("DVD", 2), rep("Radio", 2), 
                                                 rep("Camera", 2), rep("DVD", 2))),
-                           life = c(8.6, 8.2, 7.8, 8.4, 5.5, 5.7,
-                                    9.4, 8.8, 8.5, 8.9, 5.8, 5.9))
-battery_life_data
+                               life = c(8.6, 8.2, 7.8, 8.4, 5.5, 5.7,
+                                        9.4, 8.8, 8.5, 8.9, 5.8, 5.9))
+glimpse(batteryLifeData)
 ```
 We run the ANOVA first to see if the batteries are different.
 
 ```{r}
-with(battery_life_data, anova(aov(life ~ battery * device)))
+with(batteryLifeData, anova(aov(life ~ battery * device)))
 ```
 
 Interaction plot usually gives a good insight into which factor is dominant at which level.
 
 ```{r}
-with(battery_life_data, interaction.plot(device, battery, life,
-                                         type = "b",
-                                         pch = c(18, 19),
-                                         fixed = TRUE))
+with(batteryLifeData, interaction.plot(device, battery, life,
+                                       type = "b",
+                                       pch = c(18, 19),
+                                       fixed = TRUE))
 ```
 
 Looks like there is no contest for battery B in this example. Finally adequacy checking.
 
 ```{r}
-with(battery_life_data, plot(aov(life ~ battery * device),
-                             pch = 19))
+with(batteryLifeData, plot(aov(life ~ battery * device), pch = 20))
 ```
 Super residual plot.
 
@@ -883,27 +869,27 @@ In this variation of the experimental design discussed earlier, each factor has 
 In this experiment, we are concerned about the effect of the concentration of a reactant and the amount of catalyst on the yield in a chemical reaction. There are 2 levels for each of these factors and the experiment is executed in a completely randomized way. The data collected is as follows:
 
 ```{r}
-yield_data <- data.frame(A = c(rep("L", 3), rep("H", 3), rep("L", 3), rep("H", 3)),
-                            B = c(rep("L", 3), rep("L", 3), rep("H", 3), rep("H", 3)),
-                            yield = c(28, 25, 27, 36, 32, 32, 18, 19, 23, 31, 30, 29))
-yield_data
+yieldData <- data.frame(A = c(rep("L", 3), rep("H", 3), rep("L", 3), rep("H", 3)),
+                        B = c(rep("L", 3), rep("L", 3), rep("H", 3), rep("H", 3)),
+                        yield = c(28, 25, 27, 36, 32, 32, 18, 19, 23, 31, 30, 29))
+glimpse(yieldData)
 ```
 
 We proceed with ANOVA
 
 ```{r}
-with(yield_data, anova(aov(yield ~ A * B)))
+with(yieldData, anova(aov(yield ~ A * B)))
 ```
 We conclude that the interaction is not significant, but the main effects are significant.
 
 ```{r}
-with(yield_data, interaction.plot(x.factor = A, trace.factor = B, yield))
+with(yieldData, interaction.plot(x.factor = A, trace.factor = B, yield))
 ```
 
 Interaction plot confirms this finding. Adequacy checking next.
 
 ```{r}
-with(yield_data, plot(aov(yield ~ A * B)))
+with(yieldData, plot(aov(yield ~ A * B), pch = 20))
 ```
 Reasonable fits for residual plot and the Q-Q plot.
 
@@ -912,28 +898,28 @@ Reasonable fits for residual plot and the Q-Q plot.
 In an experiment to develop a nitride etch process, three factors were used - gap between electrodes (A), the gas flow (B) and the RF power of the cathode (C). The response variable is the etch rate for silicon nitride, and the experiemnt is run for two levels of each factor with two replicates. The data collected is as followed.
 
 ```{r}
-nitride_data <- data.frame(A = rep(c(rep("l", 2), rep("h", 2)), 4),
-                           B = rep(c(rep("l", 4), rep("h", 4)), 2),
-                           C = c(rep("l", 8), rep("h", 8)),
-                           etch_rate = c(550, 604, 669, 650, 633, 601, 642, 635,
-                                         1037, 1052, 749, 868, 1075, 1063, 729, 
-                                         860))
-nitride_data
+nitrideData <- data.frame(A = rep(c(rep("l", 2), rep("h", 2)), 4),
+                          B = rep(c(rep("l", 4), rep("h", 4)), 2),
+                          C = c(rep("l", 8), rep("h", 8)),
+                          etch_rate = c(550, 604, 669, 650, 633, 601, 642, 635,
+                                        1037, 1052, 749, 868, 1075, 1063, 729, 
+                                        860))
+glimpse(nitrideData)
 ```
 Proceed with ANOVA.
 
 ```{r}
-with(nitride_data, anova(aov(etch_rate ~ A * B * C)))
+with(nitrideData, anova(aov(etch_rate ~ A * B * C)))
 ```
 
 For some reason this effects function/2 returns the correct effect size. Figure out why.
 
 ```{r}
-with(nitride_data, effects(aov(etch_rate ~ A * B * C))/2)
+with(nitrideData, effects(aov(etch_rate ~ A * B * C))/2)
 ```
  
 ```{r}
-with(nitride_data, plot(aov(etch_rate ~ A * B * C)))
+with(nitrideData, plot(aov(etch_rate ~ A * B * C), pch = 20))
 ```
 
 Good plot.
@@ -946,14 +932,14 @@ $$
 $$
 
 ```{r}
-anova_nitride <- with(nitride_data, anova(aov(etch_rate ~ A * B * C)))
-paste("A: ", anova_nitride[1, 2]*100/sum(anova_nitride[, 2]))
-paste("B: ", anova_nitride[2, 2]*100/sum(anova_nitride[, 2]))
-paste("C: ", anova_nitride[3, 2]*100/sum(anova_nitride[, 2]))
-paste("AB: ", anova_nitride[4, 2]*100/sum(anova_nitride[, 2]))
-paste("AC: ", anova_nitride[5, 2]*100/sum(anova_nitride[, 2]))
-paste("BC: ", anova_nitride[6, 2]*100/sum(anova_nitride[, 2]))
-paste("ABC: ", anova_nitride[7, 2]*100/sum(anova_nitride[, 2]))
+anovaNitride <- with(nitrideData, anova(aov(etch_rate ~ A * B * C)))
+paste("A: ", anovaNitride[1, 2]*100/sum(anovaNitride[, 2]))
+paste("B: ", anovaNitride[2, 2]*100/sum(anovaNitride[, 2]))
+paste("C: ", anovaNitride[3, 2]*100/sum(anovaNitride[, 2]))
+paste("AB: ", anovaNitride[4, 2]*100/sum(anovaNitride[, 2]))
+paste("AC: ", anovaNitride[5, 2]*100/sum(anovaNitride[, 2]))
+paste("BC: ", anovaNitride[6, 2]*100/sum(anovaNitride[, 2]))
+paste("ABC: ", anovaNitride[7, 2]*100/sum(anovaNitride[, 2]))
 ```
 
 Clearly C and AC are dominant effects.
@@ -965,23 +951,23 @@ As the number of factors increase the ability to replicate the experiment suffer
 In the production of a product, its filtration rate is thought to be dependent on four factors: temperature (A), pressure (B), concentration of formaldehyde (C) and stirring rate (D). Each factor is present at 2 levels. A single replicate of the design is executed and the results are as follows:
 
 ```{r}
-filtration_data <- data.frame(A = c(rep(c("l", "h"), 8)),
-                              B = c(rep(c("l", "l", "h", "h"), 4)),
-                              C = rep(c(rep("l", 4), rep("h", 4)), 2),
-                              D = c(rep("l", 8), rep("h", 8)),
-                              rate = c(45, 71, 48, 65, 68, 60, 80, 65, 43, 100,
-                                       45, 104, 75, 86, 70, 96))
+filtrationData <- data.frame(A = c(rep(c("l", "h"), 8)),
+                             B = c(rep(c("l", "l", "h", "h"), 4)),
+                             C = rep(c(rep("l", 4), rep("h", 4)), 2),
+                             D = c(rep("l", 8), rep("h", 8)),
+                             rate = c(45, 71, 48, 65, 68, 60, 80, 65, 43, 100,
+                                      45, 104, 75, 86, 70, 96))
 
-filtration_data
+glimpse(filtrationData)
 ```
 Proceed with ANOVA
 ```{r}
-with(filtration_data, anova(aov(rate ~ A * B * C * D)))
+with(filtrationData, anova(aov(rate ~ A * B * C * D)))
 ```
 The same error was experienced in experiment 20, where error sum of squares needs to be manually extricated from the interactions. One approach would be to use the factor effect estimates to judge importance of factors to be included (full model specification fails).
 
 ```{r}
-anova_filtration <- with(filtration_data, anova(aov(rate ~ A * B * C * D)))
+anova_filtration <- with(filtrationData, anova(aov(rate ~ A * B * C * D)))
 pc_contrib <- c(anova_filtration[1,2]*100/sum(anova_filtration[,2]),
                 anova_filtration[2,2]*100/sum(anova_filtration[,2]),
                 anova_filtration[3,2]*100/sum(anova_filtration[,2]),
@@ -997,27 +983,27 @@ pc_contrib <- c(anova_filtration[1,2]*100/sum(anova_filtration[,2]),
                 anova_filtration[13,2]*100/sum(anova_filtration[,2]),
                 anova_filtration[14,2]*100/sum(anova_filtration[,2]),
                 anova_filtration[15,2]*100/sum(anova_filtration[,2]))
-filtration_effects <- data.frame(model_term = c("A", "B", "C", "D", "AB", "AC",
+filtrationEffects <- data.frame(model_term = c("A", "B", "C", "D", "AB", "AC",
                                                 "AD", "BC", "BD", "CD", "ABC",
                                                 "ABD", "ACD", "BCD", "ABCD"),
                                  pc_contrib = pc_contrib)
-filtration_effects
+filtrationEffects
 ```
 
 From this table we can make out that A, C, D, AC and AD are the main effects. We can now manualy formulate the ANOVA.
 
 ```{r}
-with(filtration_data, anova(aov(rate ~ A + C + D + A:C + A:D)))
+with(filtrationData, anova(aov(rate ~ A + C + D + A:C + A:D)))
 ```
 This establishes the significance of the effects. We can run a model excluding B, to cross check.
 
 ```{r}
-with(filtration_data, anova(aov(rate ~ A * C * D)))
+with(filtrationData, anova(aov(rate ~ A * C * D)))
 ```
 This confirms our findings. This can be interpreted as a 2 x 2 x 2 factorial design in A, C and D, with two replicates. We now move to adequacy checking.
 
 ```{r}
-with(filtration_data, plot(aov(rate ~ A * C * D)))
+with(filtrationData, plot(aov(rate ~ A * C * D), pch = 20))
 ```
 It turns out that unreplicated factorial designs are quite common. Lets look at two examples.
 
@@ -1026,32 +1012,32 @@ It turns out that unreplicated factorial designs are quite common. Lets look at 
 In an experiment to determine factors impacting oxide thickness on semiconductor surfaces, four design conditions were used: temperature (A), time (B), pressure (C) and gas flow (D). The experiment was conducted by loading four wafers into the furnace and setting the process variables to test conditions. This is not the same as replication but duplication since the four wafers received the design factors simultaneously. The data collected is as follows:
 
 ```{r}
-oxide_data <- data.frame(A = c(rep(c("l", "h"), 8)),
-                         B = c(rep(c("l", "l", "h", "h"), 4)),
-                         C = rep(c(rep("l", 4), rep("h", 4)), 2),
-                         D = c(rep("l", 8), rep("h", 8)),
-                         avg_thickness = c(378, 416, 381, 448, 372, 390, 385, 430,
+oxideData <- data.frame(A = c(rep(c("l", "h"), 8)),
+                        B = c(rep(c("l", "l", "h", "h"), 4)),
+                        C = rep(c(rep("l", 4), rep("h", 4)), 2),
+                        D = c(rep("l", 8), rep("h", 8)),
+                        avg_thickness = c(378, 416, 381, 448, 372, 390, 385, 430,
                                            380, 415, 371, 446, 378, 392, 376, 429))
-oxide_data
+glimpse(oxideData)
 ```
 We begin with effect estimates:
 
 ```{r}
-anova_oxide <- with(oxide_data, anova(aov(avg_thickness ~ A * B * C * D)))
-oxide_effects <- data_frame(model_term = c("A", "B", "C", "D", "AB", "AC",
+anovaOxide <- with(oxideData, anova(aov(avg_thickness ~ A * B * C * D)))
+oxideEffects <- data_frame(model_term = c("A", "B", "C", "D", "AB", "AC",
                                            "AD", "BC", "BD", "CD", "ABC",
                                            "ABD", "ACD", "BCD", "ABCD"),
-                            contrib = sapply(anova_oxide[1:15,2], 
-                                             function(x) { x * 100/sum(anova_oxide[,2]) }))
-oxide_effects
+                           contrib = sapply(anovaOxide[1:15,2], 
+                                             function(x) { x * 100/sum(anovaOxide[,2]) }))
+oxideEffects
 ```
 From this table we conclude that factors A, B, C, AB and AC are important. We can now run this restricted formulation.
 
 ```{r}
-with(oxide_data, anova(aov(avg_thickness ~ A * B * C)))
+with(oxideData, anova(aov(avg_thickness ~ A * B * C)))
 ```
 ```{r}
-with(oxide_data, plot(aov(avg_thickness ~ A * B * C)))
+with(oxideData, plot(aov(avg_thickness ~ A * B * C), pch = 20))
 ```
 
 Another unreplicated factorial design example close to home.
@@ -1061,33 +1047,33 @@ Another unreplicated factorial design example close to home.
 In an experiment to improve response rate to credit card offers, a firm is experimenting with both interest rates and fees. The factors used were: Annual Fee (A), Account-opening fee (B), Initial interest rate (C), Long-term interest rate (D). The marketing team used a $2^4$ factorial design to run this experiment. The response to the campaign was used as the response variable. The data collected is as follows.
 
 ```{r}
-credit_card_data <- data.frame(A = c(rep(c("l", "h"), 8)),
-                               B = c(rep(c("l", "l", "h", "h"), 4)),
-                               C = rep(c(rep("l", 4), rep("h", 4)), 2),
-                               D = c(rep("l", 8), rep("h", 8)),
-                               rr = c(2.45, 3.36, 2.16, 2.29, 2.49, 3.39, 2.32,
-                                      2.44, 1.84, 2.24, 1.69, 1.87, 2.29, 2.92,
-                                      2.04, 2.03))
-credit_card_data
+creditCardData <- data.frame(A = c(rep(c("l", "h"), 8)),
+                             B = c(rep(c("l", "l", "h", "h"), 4)),
+                             C = rep(c(rep("l", 4), rep("h", 4)), 2),
+                             D = c(rep("l", 8), rep("h", 8)),
+                             rr = c(2.45, 3.36, 2.16, 2.29, 2.49, 3.39, 2.32,
+                                    2.44, 1.84, 2.24, 1.69, 1.87, 2.29, 2.92,
+                                    2.04, 2.03))
+glimpse(creditCardData)
 ```
 Since there is no replication, no sense in running ANOVA on the full model. We start with effect sizes.
 
 ```{r}
-anova_credit <- with(credit_card_data, anova(aov(rr ~ A * B * C * D)))
-credit_effects <- data_frame(model_term = c("A", "B", "C", "D", "AB", "AC",
+anovaCredit <- with(creditCardData, anova(aov(rr ~ A * B * C * D)))
+creditEffects <- data_frame(model_term = c("A", "B", "C", "D", "AB", "AC",
                                            "AD", "BC", "BD", "CD", "ABC",
                                            "ABD", "ACD", "BCD", "ABCD"),
-                            contrib = sapply(anova_credit[1:15,2], 
-                                             function(x) { x * 100/sum(anova_credit[,2]) }))
-credit_effects
+                            contrib = sapply(anovaCredit[1:15,2], 
+                                             function(x) { x * 100/sum(anovaCredit[,2]) }))
+creditEffects %>% arrange(-contrib)
 ```
 Looks like A, B, C, D main effects and the AB interaction are meaningful.
 ```{r}
-with(credit_card_data, anova(aov(rr ~ A + B + C + D + A:B)))
+with(creditCardData, anova(aov(rr ~ A + B + C + D + A:B)))
 ```
 
 ```{r}
-with(credit_card_data, plot(aov(rr ~ A + B + C + D + A:B)))
+with(creditCardData, plot(aov(rr ~ A + B + C + D + A:B), pch = 20))
 ```
 
 We have been working with coded design varibles rather than their actual physical units. There are good reasons for this and we illustrate with an example.
@@ -1095,27 +1081,27 @@ We have been working with coded design varibles rather than their actual physica
 *Experiment 32*
 
 ```{r}
-ohms_law <- data.frame(I = rep(c(rep(4, 2), rep(6, 2)), 2),
-                       R = c(rep(1, 4), rep(2, 4)),
-                       V = c(3.802, 4.013, 6.065, 5.992, 7.934, 8.159, 11.865,
-                             12.138))
-ohms_law
-ohms_law_coded <- data.frame(I = as.factor(rep(c(rep(-1, 2), rep(1, 2)), 2)),
-                       R = as.factor(c(rep(-1, 4), rep(1, 4))),
-                       V = c(3.802, 4.013, 6.065, 5.992, 7.934, 8.159, 11.865,
-                             12.138))
-ohms_law_coded
+ohmsLaw <- data.frame(I = rep(c(rep(4, 2), rep(6, 2)), 2),
+                      R = c(rep(1, 4), rep(2, 4)),
+                      V = c(3.802, 4.013, 6.065, 5.992, 7.934, 8.159, 11.865,
+                            12.138))
+glimpse(ohmsLaw)
+ohmsLawCoded <- data.frame(I = as.factor(rep(c(rep(-1, 2), rep(1, 2)), 2)),
+                           R = as.factor(c(rep(-1, 4), rep(1, 4))),
+                           V = c(3.802, 4.013, 6.065, 5.992, 7.934, 8.159, 11.865,
+                                 12.138))
+glimpse(ohmsLawCoded)
 ```
 
 If we perform a regression analysis of the two data sets:
 
 ```{r}
-with(ohms_law_coded, summary(lm(V ~ I * R)))
+summary(lm(V ~ I * R, data = ohmsLawCoded))
 ```
 
 For some reason, the actual values dont tally with the book.
 
 ```{r}
-with(ohms_law, summary(lm(V ~ I * R)))
+summary(lm(V ~ I * R, ohmsLaw))
 ```
 
