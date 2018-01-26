@@ -1,5 +1,6 @@
 # Experiments
 
+Faithful reproduction of the analysis of experiments presented in several books. 
 At the moment, the following books are done:
 
- -  Faithful reproduction of the analysis of experiments presented in Montgomery's book, in R
+ -   Design and Analysis of Experiments - Douglas Montgomery
