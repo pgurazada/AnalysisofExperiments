@@ -67,44 +67,32 @@ shuffle!(means)
 arms = map(mu -> BernoulliArm(mu), means)
 
 function test_algorithm(algo::EpsilonGreedyAlgorithm, arms::Vector, n_sims::Int, horizon::Int)
-    chosen_arms = zeros(Int, n_sims * horizon)
-    rewards = zeros(n_sims * horizon)
-    cum_rewards = zeros(n_sims * horizon)
-    sim_nums = zeros(n_sims * horizon)
-    times = zeros(n_sims * horizon)
+    results = DataFrame(sim_num = Int[], time = Int[], chosen_arm = Int[],
+                        reward = Float64[])
 
     for sim in 1:n_sims
         initialize(algo, length(arms))
 
         for t = 1:horizon
-            index = (sim - 1) * horizon + t
-
-            sim_nums[index] = sim
-            times[index] = t
-
             chosen_arm = select_arm(algo)
-            chosen_arms[index] = chosen_arm
 
             reward = draw(arms[chosen_arm])
-            rewards[index] = reward
-
-            if t == 1
-                cum_rewards[index] = reward
-            else
-                cum_rewards[index] = cum_rewards[index-1] + reward
-            end
 
             update(algo, chosen_arm, reward)
 
+            push!(results, [sim, t, chosen_arm, reward])
         end
     end
 
-    return hcat(sim_nums, times, chosen_arms, rewards, cum_rewards)
+    return results
 end
+
+total_results = DataFrame(sim_num = Int[], time = Int[], chosen_arm = Int[],
+                          reward = Float64[], epsilon = Float64[])
 
 for epsilon in 0.1:0.1:0.5
     algo = EpsilonGreedyAlgorithm(epsilon, zeros(Int, n_arms), zeros(n_arms))
     results = test_algorithm(algo, arms, 5000, 250)
-    results = hcat(repmat([epsilon], size(results, 1), 1), results)
-    total_results = vcat(total_results, results)
+    results[:epsilon] = fill(epsilon, nrow(results))
+    append!(total_results, results)
 end
