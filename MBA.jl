@@ -1,6 +1,6 @@
-using Distributions, DataFrames, Plots
+using Distributions, DataFrames
+using CSV
 
-gr()
 srand(20130810)
 
 abstract type BanditAlgorithms end
