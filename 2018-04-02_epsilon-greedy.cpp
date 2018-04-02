@@ -39,11 +39,11 @@ int index_rand(arma::vec& v) {
   arma::uvec indices = arma::linspace<arma::uvec>(0, v.n_elem-1, v.n_elem); 
 
   arma::uvec u = RcppArmadillo::sample(indices, 1, false);
-  return u[0];
+  return (int)u[0];
 }
 
 int select_arm(EpsilonGreedy& algo) {
-  if (R::runif(0, 1) < algo.epsilon) {
+  if (R::runif(0, 1) > algo.epsilon) {
     return arma::index_max(algo.values);
   } else {
     return index_rand(algo.values);
@@ -51,7 +51,7 @@ int select_arm(EpsilonGreedy& algo) {
 }
 
 void update(EpsilonGreedy& algo, int chosen_arm, double reward) {
-  algo.counts++;
+  algo.counts[chosen_arm] += 1;
   
   int n = algo.counts[chosen_arm];
   double value = algo.values[chosen_arm];
@@ -60,7 +60,7 @@ void update(EpsilonGreedy& algo, int chosen_arm, double reward) {
 }
 
 // [[Rcpp::export]]
-DataFrame test_algorithm(double epsilon, arma::vec means, int n_sims, int horizon) {
+DataFrame test_algorithm(double epsilon, arma::vec& means, int n_sims, int horizon) {
   
   std::vector<BernoulliArm> arms;
   
