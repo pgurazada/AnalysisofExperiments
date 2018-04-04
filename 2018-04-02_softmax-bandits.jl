@@ -1,5 +1,5 @@
 using Distributions, DataFrames
-using CSV
+using Feather
 
 srand(20130810)
 
@@ -88,3 +88,5 @@ for temperature in 0.1:0.1:0.5
   results[:temperature] = fill(temperature, nrow(results))
   append!(total_results, results)
 end
+
+@time Feather.write("data\\2018-04-04_softmax-results.feather", total_results)
