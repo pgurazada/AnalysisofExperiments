@@ -18,16 +18,17 @@ using namespace Rcpp;
 
 struct EpsilonGreedy {
   double epsilon;
-  std::vector<int> counts;
-  std::vector<double> values;
+  arma::uvec counts;
+  arma::vec values;
 };
 
-int index_max(std::vector<double>& v) {
-  return std::distance(v.begin(), std::max_element(v.begin(), v.end()));
+int index_max(arma::uvec& v) {
+  return v.index_max();
 }
 
-int index_rand(std::vector<double>& v) {
-  return R::runif(0, v.size()-1);
+int index_rand(arma::vec& v) {
+  int s = arma::randi<int>(arma::distr_param(0, v.n_elem-1));
+  return s;
 }
 
 int select_arm(EpsilonGreedy& algo) {
@@ -74,8 +75,8 @@ DataFrame test_algorithm(double epsilon, std::vector<double>& means, int n_sims,
   
   for (int sim = 1; sim <= n_sims; ++sim) {
     
-    std::vector<int> counts(means.size(), 0);
-    std::vector<double> values(means.size(), 0.0); 
+    arma::uvec counts(means.size(), arma::fill::zeros);
+    arma::vec values(means.size(), arma::fill::zeros); 
     
     EpsilonGreedy algo = {epsilon, counts, values};
     
@@ -102,48 +103,48 @@ DataFrame test_algorithm(double epsilon, std::vector<double>& means, int n_sims,
 
 /***R
 
-# library(tidyverse)
-# means <- c(0.1, 0.1, 0.1, 0.1, 0.9)
-# 
-# total_results <- data.frame(sim_num = integer(), time = integer(), chosen_arm = integer(),
-#                             reward = numeric(), epsilon = numeric())
-# 
-# for (epsilon in seq(0.1, 0.5, length.out = 5)) {
-# 
-#   cat("Starting with ", epsilon, " at: ", format(Sys.time(), "%H:%M"), "\n")
-# 
-#   results <- test_algorithm(epsilon, means, 5000, 250)
-#   results$epsilon <- epsilon
-# 
-#   total_results <- rbind(total_results, results)
-# 
-# }
-# 
-# avg_reward <- total_results %>% group_by(time, epsilon) %>%
-#                                 summarize(avg_reward = mean(reward))
-# 
-# dev.new()
-# 
-# ggplot(avg_reward) +
-#   geom_line(aes(x = time, y = avg_reward,
-#                 group = epsilon, color = epsilon), size = 1) +
-#   scale_color_gradient(low = "grey", high = "black") +
-#   labs(x = "Time",
-#        y = "Average reward",
-#        title = "Performance of the Epsilon-Greedy Algorithm",
-#        color = "epsilon\n")
-# 
-# #' Frequency of selecting the correct arm
-# 
-# freq_correct <- total_results %>% group_by(time, epsilon) %>%
-#                                   summarize_at(vars(chosen_arm), function(x) mean(x == 4))
-# 
-# ggplot(freq_correct) +
-#   geom_line(aes(x = time, y = chosen_arm,
-#                 group = epsilon, color = epsilon), size = 1) +
-#                   scale_color_gradient(low = "grey", high = "black") +
-#                   labs(x = "Time",
-#                        y = "Probability of choosing the correct arm",
-#                        title = "Performance of the Epsilon-Greedy Algorithm",
-#                        color = "epsilon\n")
+library(tidyverse)
+means <- c(0.1, 0.1, 0.1, 0.1, 0.9)
+
+total_results <- data.frame(sim_num = integer(), time = integer(), chosen_arm = integer(),
+                            reward = numeric(), epsilon = numeric())
+
+for (epsilon in seq(0.1, 0.5, length.out = 5)) {
+
+  cat("Starting with ", epsilon, " at: ", format(Sys.time(), "%H:%M"), "\n")
+
+  results <- test_algorithm(epsilon, means, 5000, 250)
+  results$epsilon <- epsilon
+
+  total_results <- rbind(total_results, results)
+
+}
+
+avg_reward <- total_results %>% group_by(time, epsilon) %>%
+                                summarize(avg_reward = mean(reward))
+
+dev.new()
+
+ggplot(avg_reward) +
+  geom_line(aes(x = time, y = avg_reward,
+                group = epsilon, color = epsilon), size = 1) +
+  scale_color_gradient(low = "grey", high = "black") +
+  labs(x = "Time",
+       y = "Average reward",
+       title = "Performance of the Epsilon-Greedy Algorithm",
+       color = "epsilon\n")
+
+#' Frequency of selecting the correct arm
+
+freq_correct <- total_results %>% group_by(time, epsilon) %>%
+                                  summarize_at(vars(chosen_arm), function(x) mean(x == 4))
+
+ggplot(freq_correct) +
+  geom_line(aes(x = time, y = chosen_arm,
+                group = epsilon, color = epsilon), size = 1) +
+                  scale_color_gradient(low = "grey", high = "black") +
+                  labs(x = "Time",
+                       y = "Probability of choosing the correct arm",
+                       title = "Performance of the Epsilon-Greedy Algorithm",
+                       color = "epsilon\n")
 */
