@@ -5,26 +5,26 @@ srand(20130810)
 
 abstract type BanditAlgorithms end
 
-mutable struct EpsilonGreedyAlgorithm <: BanditAlgorithms
+mutable struct EpsilonGreedy <: BanditAlgorithms
     epsilon::Float64
     counts::Vector{Int}
     values::Vector{Float64}
 end
 
-function EpsilonGreedyAlgorithm(epsilon::Float64, n_arms::Int)
-    EpsilonGreedyAlgorithm(epsilon, zeros(Int, n_arms), zeros(Float64, n_arms))
+function EpsilonGreedy(epsilon::Float64, n_arms::Int)
+    EpsilonGreedy(epsilon, zeros(Int, n_arms), zeros(Float64, n_arms))
 end
 
-function initialize(algo::EpsilonGreedyAlgorithm, n_arms::Int)
+function initialize(algo::EpsilonGreedy, n_arms::Int)
     algo.counts = zeros(Int, n_arms)
     algo.values = zeros(Float64, n_arms)
 end
 
-function initialize(algo::EpsilonGreedyAlgorithm, arms::Vector)
+function initialize(algo::EpsilonGreedy, arms::Vector)
     initialize(algo, length(arms))
 end
 
-function select_arm(algo::EpsilonGreedyAlgorithm)
+function select_arm(algo::EpsilonGreedy)
     if rand() > algo.epsilon
         return indmax(algo.values)
     else
@@ -32,7 +32,7 @@ function select_arm(algo::EpsilonGreedyAlgorithm)
     end
 end
 
-function update(algo::EpsilonGreedyAlgorithm, chosen_arm::Int, reward::Real)
+function update(algo::EpsilonGreedy, chosen_arm::Int, reward::Real)
     algo.counts[chosen_arm] += 1
     n = algo.counts[chosen_arm]
 
@@ -66,7 +66,7 @@ shuffle!(means)
 
 arms = map(mu -> BernoulliArm(mu), means)
 
-function test_algorithm(algo::EpsilonGreedyAlgorithm, arms::Vector, n_sims::Int, horizon::Int)
+function test_algorithm(algo::EpsilonGreedy, arms::Vector, n_sims::Int, horizon::Int)
     results = DataFrame(sim_num = Int[], time = Int[], chosen_arm = Int[],
                         reward = Float64[])
 
@@ -91,7 +91,7 @@ total_results = DataFrame(sim_num = Int[], time = Int[], chosen_arm = Int[],
                           reward = Float64[], epsilon = Float64[])
 
 for epsilon in 0.1:0.1:0.5
-    algo = EpsilonGreedyAlgorithm(epsilon, zeros(Int, n_arms), zeros(n_arms))
+    algo = EpsilonGreedy(epsilon, zeros(Int, n_arms), zeros(n_arms))
     results = test_algorithm(algo, arms, 5000, 250)
     results[:epsilon] = fill(epsilon, nrow(results))
     append!(total_results, results)
