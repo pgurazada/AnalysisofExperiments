@@ -100,6 +100,3 @@ println("Best arm is: $(indmax(means))")
 algo = AnnealingSoftmax(zeros(Int, n_arms), zeros(n_arms))
 
 @time results = test_algorithm(algo, arms, 5000, 250)
-
-@time Feather.write("C:\\Users\\kimmcodxb\\Documents\\GitHub\\AnalysisofExperiments\\data\\2018-04-04_annealing-softmax-results-nodiff.feather",
-                    results)

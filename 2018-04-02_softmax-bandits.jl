@@ -88,6 +88,3 @@ for temperature in 0.1:0.1:0.5
   results[:temperature] = fill(temperature, nrow(results))
   append!(total_results, results)
 end
-
-describe(total_results)
-CSV.write("C:\\Users\\kimmcodxb\\Documents\\GitHub\\AnalysisofExperiments\\data\\2018-04-02_softmax.csv", total_results)
