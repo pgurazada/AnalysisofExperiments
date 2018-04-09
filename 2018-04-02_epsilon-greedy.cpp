@@ -125,6 +125,8 @@ avg_reward <- total_results %>% group_by(time, epsilon) %>%
 
 dev.new()
 
+#' Plotting the performance of the algorithm
+
 ggplot(avg_reward) +
   geom_line(aes(x = time, y = avg_reward,
                 group = epsilon, color = epsilon), size = 1) +
